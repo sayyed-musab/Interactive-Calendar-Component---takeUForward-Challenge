@@ -2,16 +2,17 @@
 
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface CalendarHeroProps {
   currentDate: Date;
 }
 
 export default function CalendarHero({ currentDate }: CalendarHeroProps) {
-  // 1. Provide a static default image for the Server-Side Render (SSR) to prevent mismatches
+  // Provide a static default image for the Server-Side Render (SSR) to prevent mismatches
   const [activeImage, setActiveImage] = useState("/calendar-hero-images/1.jpg");
 
-  // 2. Generate the random image ONLY on the client after the component mounts
+  // Generate the random image ONLY on the client after the component mounts
   useEffect(() => {
     const randomNum = Math.floor(Math.random() * 10) + 1;
     setActiveImage(`/calendar-hero-images/${randomNum}.jpg`);
@@ -24,10 +25,13 @@ export default function CalendarHero({ currentDate }: CalendarHeroProps) {
         clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 100%, 22% 80%, 0 95%)",
       }}
     >
-      <img
+      <Image
         src={activeImage}
         alt={`${format(currentDate, "MMMM")} Calendar Hero`}
         className="absolute inset-0 w-full h-full object-cover opacity-95 transition-opacity duration-500"
+        fill={true}
+        loading="eager"
+        sizes="(max-width: 896px) 100vw, 896px"
         style={{
           clipPath: "polygon(0 0, 100% 0, 100% 35%, 50% 100%, 0 65%)",
         }}
