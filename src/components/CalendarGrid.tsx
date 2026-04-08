@@ -20,8 +20,9 @@ interface CalendarGridProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   notes: Record<string, string>;
-  weekStartsOn: DayOfWeek; // NEW
-  onWeekStartsOnChange: (day: DayOfWeek) => void; // NEW
+  weekStartsOn: DayOfWeek;
+  onWeekStartsOnChange: (day: DayOfWeek) => void;
+  themeColor: string; // NEW
 }
 
 export default function CalendarGrid({
@@ -33,11 +34,9 @@ export default function CalendarGrid({
   notes,
   weekStartsOn,
   onWeekStartsOnChange,
+  themeColor,
 }: CalendarGridProps) {
-  // The base array of days
   const baseDaysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-
-  // NEW: Dynamically rotate the days array based on the selected start day
   const displayDaysOfWeek = [
     ...baseDaysOfWeek.slice(weekStartsOn),
     ...baseDaysOfWeek.slice(0, weekStartsOn),
@@ -45,8 +44,6 @@ export default function CalendarGrid({
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
-
-  // NEW: Pass the `weekStartsOn` option to date-fns so it calculates the grid correctly!
   const startDate = startOfWeek(monthStart, { weekStartsOn });
   const endDate = endOfWeek(monthEnd, { weekStartsOn });
 
@@ -54,7 +51,6 @@ export default function CalendarGrid({
 
   return (
     <div className="w-full flex flex-col">
-      {/* Month Navigation */}
       <div className="flex justify-between items-center mb-2">
         <button
           onClick={onPrevMonth}
@@ -73,7 +69,6 @@ export default function CalendarGrid({
         </button>
       </div>
 
-      {/* NEW: Start Day Selector Dropdown */}
       <div className="flex justify-end items-center mb-6">
         <label className="text-[10px] text-gray-400 uppercase tracking-wider mr-2">
           Start Week On:
@@ -83,7 +78,8 @@ export default function CalendarGrid({
           onChange={(e) =>
             onWeekStartsOnChange(Number(e.target.value) as DayOfWeek)
           }
-          className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#1a91d0] cursor-pointer"
+          className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-1 focus:outline-none cursor-pointer"
+          style={{ outlineColor: themeColor }} // Dynamic focus outline
         >
           <option value={0}>Sunday</option>
           <option value={1}>Monday</option>
@@ -91,19 +87,19 @@ export default function CalendarGrid({
         </select>
       </div>
 
-      {/* Weekday Headers */}
       <div className="grid grid-cols-7 mb-4">
         {displayDaysOfWeek.map((day) => (
           <div
             key={day}
-            className={`text-center text-xs font-bold tracking-wider ${day === "SUN" || day === "SAT" ? "text-[#1a91d0]" : "text-gray-500"}`}
+            className={`text-center text-xs font-bold tracking-wider ${day === "SUN" || day === "SAT" ? "" : "text-gray-500"}`}
+            // NEW: Dynamic Weekend Colors
+            style={day === "SUN" || day === "SAT" ? { color: themeColor } : {}}
           >
             {day}
           </div>
         ))}
       </div>
 
-      {/* Calendar Days */}
       <div className="grid grid-cols-7 gap-y-4 gap-x-0">
         {calendarDays.map((day, idx) => {
           const isCurrentMonth = isSameMonth(day, monthStart);
@@ -125,16 +121,23 @@ export default function CalendarGrid({
                     className={`w-8 h-8 flex items-center justify-center rounded-full text-sm transition-all
                       ${
                         isSelected
-                          ? "bg-[#1a91d0] text-white shadow-md font-medium"
+                          ? "text-white shadow-md font-medium"
                           : isTodayDate
-                            ? "text-[#1a91d0] font-bold border border-[#1a91d0]"
+                            ? "font-bold border"
                             : "text-gray-700 hover:bg-gray-200 font-medium"
                       }
                     `}
+                    // NEW: Dynamic background for selected, and text/border for today
+                    style={
+                      isSelected
+                        ? { backgroundColor: themeColor }
+                        : isTodayDate
+                          ? { color: themeColor, borderColor: themeColor }
+                          : {}
+                    }
                   >
                     {format(day, "d")}
                   </button>
-
                   {hasNote && (
                     <div className="absolute -bottom-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                   )}

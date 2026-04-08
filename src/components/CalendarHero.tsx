@@ -6,9 +6,13 @@ import Image from "next/image";
 
 interface CalendarHeroProps {
   currentDate: Date;
+  themeColor: string;
 }
 
-export default function CalendarHero({ currentDate }: CalendarHeroProps) {
+export default function CalendarHero({
+  currentDate,
+  themeColor,
+}: CalendarHeroProps) {
   // Provide a static default image for the Server-Side Render (SSR) to prevent mismatches
   const [activeImage, setActiveImage] = useState("/calendar-hero-images/1.jpg");
 
@@ -22,6 +26,7 @@ export default function CalendarHero({ currentDate }: CalendarHeroProps) {
     <div
       className="relative w-full h-75 sm:h-112 bg-[#1a91d0] overflow-hidden transition-all duration-500 ease-in-out"
       style={{
+        backgroundColor: themeColor,
         clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 100%, 22% 80%, 0 95%)",
       }}
     >

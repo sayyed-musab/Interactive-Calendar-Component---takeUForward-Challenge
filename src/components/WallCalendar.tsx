@@ -6,16 +6,13 @@ import CalendarHero from "./CalendarHero";
 import CalendarGrid from "./CalendarGrid";
 import Notes from "./Notes";
 
-// Types for our days (0 = Sunday, 1 = Monday, etc.)
 type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export default function WallCalendar() {
+export default function WallCalendar({ themeColor }: { themeColor: string }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState<Record<string, string>>({});
-
-  // NEW: State for the start day of the week (Default: 1 for Monday)
-  const [weekStartsOn, setWeekStartsOn] = useState<DayOfWeek>(1);
+  const [weekStartsOn, setWeekStartsOn] = useState<DayOfWeek>(0);
 
   useEffect(() => {
     const savedNotes = localStorage.getItem("calendar-notes");
@@ -26,10 +23,7 @@ export default function WallCalendar() {
 
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
-
-  const handleSelectDate = (date: Date) => {
-    setSelectedDate(date);
-  };
+  const handleSelectDate = (date: Date) => setSelectedDate(date);
 
   const handleNoteChange = (text: string) => {
     if (!selectedDate) return;
@@ -45,14 +39,11 @@ export default function WallCalendar() {
   const currentNoteText = activeDateKey ? notes[activeDateKey] || "" : "";
 
   return (
-    <div className="relative mt-16 w-full max-w-4xl mx-auto transition-transform duration-300">
-      {/* --- TOP BINDING & WALL HANGER UI --- */}
+    <div className="relative mt-24 w-full max-w-4xl mx-auto transition-transform duration-300">
+      {/* --- TOP BINDING & WALL HANGER UI (Kept Exactly the Same) --- */}
       <div className="absolute -top-5 left-0 w-full flex justify-center pointer-events-none">
-        {/* Horizontal Hanger Wire */}
         <div className="absolute top-4 left-[6%] sm:left-[8%] right-[50%] h-0.75 bg-[#111] mr-11.25 rounded-l-full shadow-sm z-10"></div>
         <div className="absolute top-4 left-[50%] right-[6%] sm:right-[8%] h-0.75 bg-[#111] ml-11.25 rounded-r-full shadow-sm z-10"></div>
-
-        {/* Central SVG Hanger Swoop & Nail */}
         <div className="absolute -top-4.5 left-1/2 -translate-x-1/2 w-25 h-10 z-0">
           <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
             <path
@@ -90,17 +81,12 @@ export default function WallCalendar() {
             />
           </svg>
         </div>
-
-        {/* The Double-Loop Spirals and Paper Holes */}
         <div className="w-full flex justify-between px-4 sm:px-10 mt-3">
-          {/* Left Group of Spirals */}
           <div className="flex gap-1.5 sm:gap-2.5">
             {[...Array(12)].map((_, i) => (
               <div
                 key={`l-${i}`}
-                className={`relative w-3.5 h-7 flex-col items-center ${
-                  i >= 8 ? "hidden sm:flex" : "flex"
-                }`}
+                className={`relative w-3.5 h-7 flex-col items-center ${i >= 8 ? "hidden sm:flex" : "flex"}`}
               >
                 <div className="absolute -top-0.5 w-3.5 h-6 border-double border-[3px] border-[#333] rounded-full z-0 drop-shadow-sm"></div>
                 <div className="absolute top-2.5 w-3.5 h-2.5 bg-[#7a818c] rounded-[1px] shadow-inner z-20"></div>
@@ -108,15 +94,11 @@ export default function WallCalendar() {
               </div>
             ))}
           </div>
-
-          {/* Right Group of Spirals */}
           <div className="flex gap-1.5 sm:gap-2.5">
             {[...Array(12)].map((_, i) => (
               <div
                 key={`r-${i}`}
-                className={`relative w-3.5 h-7 flex-col items-center ${
-                  i >= 8 ? "hidden sm:flex" : "flex"
-                }`}
+                className={`relative w-3.5 h-7 flex-col items-center ${i >= 8 ? "hidden sm:flex" : "flex"}`}
               >
                 <div className="absolute -top-0.5 w-3.5 h-6 border-double border-[3px] border-[#333] rounded-full z-0 drop-shadow-sm"></div>
                 <div className="absolute top-2.5 w-3.5 h-2.5 bg-[#7a818c] rounded-[1px] shadow-inner z-20"></div>
@@ -131,15 +113,19 @@ export default function WallCalendar() {
       <div className="bg-white shadow-2xl rounded-b-xl rounded-t-xl overflow-hidden flex flex-col w-full relative z-10 ring-1 ring-gray-200">
         <div className="w-full h-6 bg-[#e2e6ec] border-b border-gray-300 relative z-10"></div>
 
-        <CalendarHero currentDate={currentDate} />
+        {/* Pass themeColor down */}
+        <CalendarHero currentDate={currentDate} themeColor={themeColor} />
 
         <div className="flex flex-col-reverse md:flex-row p-6 md:p-10 gap-10 md:gap-16 bg-white">
+          {/* Pass themeColor down */}
           <Notes
             activeDate={selectedDate}
             noteText={currentNoteText}
             onNoteChange={handleNoteChange}
+            themeColor={themeColor}
           />
           <div className="md:w-2/3">
+            {/* Pass themeColor down */}
             <CalendarGrid
               currentDate={currentDate}
               onNextMonth={handleNextMonth}
@@ -147,9 +133,9 @@ export default function WallCalendar() {
               selectedDate={selectedDate}
               onSelectDate={handleSelectDate}
               notes={notes}
-              // NEW: Passing down the state and the setter
               weekStartsOn={weekStartsOn}
               onWeekStartsOnChange={setWeekStartsOn}
+              themeColor={themeColor}
             />
           </div>
         </div>
