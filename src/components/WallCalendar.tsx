@@ -40,7 +40,7 @@ export default function WallCalendar({ themeColor }: { themeColor: string }) {
 
   return (
     <div className="relative mt-24 w-full max-w-4xl mx-auto transition-transform duration-300">
-      {/* --- TOP BINDING & WALL HANGER UI (Kept Exactly the Same) --- */}
+      {/* --- TOP BINDING & WALL HANGER UI --- */}
       <div className="absolute -top-5 left-0 w-full flex justify-center pointer-events-none">
         <div className="absolute top-4 left-[6%] sm:left-[8%] right-[50%] h-0.75 bg-[#111] mr-11.25 rounded-l-full shadow-sm z-10"></div>
         <div className="absolute top-4 left-[50%] right-[6%] sm:right-[8%] h-0.75 bg-[#111] ml-11.25 rounded-r-full shadow-sm z-10"></div>
