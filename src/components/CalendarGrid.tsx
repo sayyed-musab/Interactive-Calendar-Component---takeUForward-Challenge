@@ -11,13 +11,17 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 interface CalendarGridProps {
   currentDate: Date;
   onPrevMonth: () => void;
   onNextMonth: () => void;
-  selectedDate: Date; // Now always a Date
+  selectedDate: Date;
   onSelectDate: (date: Date) => void;
   notes: Record<string, string>;
+  weekStartsOn: DayOfWeek; // NEW
+  onWeekStartsOnChange: (day: DayOfWeek) => void; // NEW
 }
 
 export default function CalendarGrid({
@@ -27,19 +31,31 @@ export default function CalendarGrid({
   selectedDate,
   onSelectDate,
   notes,
+  weekStartsOn,
+  onWeekStartsOnChange,
 }: CalendarGridProps) {
-  const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  // The base array of days
+  const baseDaysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+  // NEW: Dynamically rotate the days array based on the selected start day
+  const displayDaysOfWeek = [
+    ...baseDaysOfWeek.slice(weekStartsOn),
+    ...baseDaysOfWeek.slice(0, weekStartsOn),
+  ];
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart);
-  const endDate = endOfWeek(monthEnd);
+
+  // NEW: Pass the `weekStartsOn` option to date-fns so it calculates the grid correctly!
+  const startDate = startOfWeek(monthStart, { weekStartsOn });
+  const endDate = endOfWeek(monthEnd, { weekStartsOn });
 
   const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
 
   return (
     <div className="w-full flex flex-col">
-      <div className="flex justify-between items-center mb-6">
+      {/* Month Navigation */}
+      <div className="flex justify-between items-center mb-2">
         <button
           onClick={onPrevMonth}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -57,8 +73,27 @@ export default function CalendarGrid({
         </button>
       </div>
 
+      {/* NEW: Start Day Selector Dropdown */}
+      <div className="flex justify-end items-center mb-6">
+        <label className="text-[10px] text-gray-400 uppercase tracking-wider mr-2">
+          Start Week On:
+        </label>
+        <select
+          value={weekStartsOn}
+          onChange={(e) =>
+            onWeekStartsOnChange(Number(e.target.value) as DayOfWeek)
+          }
+          className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#1a91d0] cursor-pointer"
+        >
+          <option value={0}>Sunday</option>
+          <option value={1}>Monday</option>
+          <option value={6}>Saturday</option>
+        </select>
+      </div>
+
+      {/* Weekday Headers */}
       <div className="grid grid-cols-7 mb-4">
-        {daysOfWeek.map((day) => (
+        {displayDaysOfWeek.map((day) => (
           <div
             key={day}
             className={`text-center text-xs font-bold tracking-wider ${day === "SUN" || day === "SAT" ? "text-[#1a91d0]" : "text-gray-500"}`}
@@ -68,12 +103,11 @@ export default function CalendarGrid({
         ))}
       </div>
 
+      {/* Calendar Days */}
       <div className="grid grid-cols-7 gap-y-4 gap-x-0">
         {calendarDays.map((day, idx) => {
           const isCurrentMonth = isSameMonth(day, monthStart);
           const isSelected = isSameDay(day, selectedDate);
-
-          // Check if this day is actually today's real-world date
           const isTodayDate = isToday(day);
 
           const dateKey = format(day, "yyyy-MM-dd");
@@ -93,10 +127,8 @@ export default function CalendarGrid({
                         isSelected
                           ? "bg-[#1a91d0] text-white shadow-md font-medium"
                           : isTodayDate
-                            ? // NEW: Style for today when it is NOT selected (blue text and a blue ring)
-                              "text-[#1a91d0] font-bold border border-[#1a91d0]"
-                            : // Default style
-                              "text-gray-700 hover:bg-gray-200 font-medium"
+                            ? "text-[#1a91d0] font-bold border border-[#1a91d0]"
+                            : "text-gray-700 hover:bg-gray-200 font-medium"
                       }
                     `}
                   >

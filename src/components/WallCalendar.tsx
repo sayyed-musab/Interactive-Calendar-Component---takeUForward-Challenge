@@ -6,10 +6,16 @@ import CalendarHero from "./CalendarHero";
 import CalendarGrid from "./CalendarGrid";
 import Notes from "./Notes";
 
+// Types for our days (0 = Sunday, 1 = Monday, etc.)
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export default function WallCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState<Record<string, string>>({});
+
+  // NEW: State for the start day of the week (Default: 1 for Monday)
+  const [weekStartsOn, setWeekStartsOn] = useState<DayOfWeek>(1);
 
   useEffect(() => {
     const savedNotes = localStorage.getItem("calendar-notes");
@@ -47,7 +53,6 @@ export default function WallCalendar() {
         <div className="absolute top-4 left-[50%] right-[6%] sm:right-[8%] h-0.75 bg-[#111] ml-11.25 rounded-r-full shadow-sm z-10"></div>
 
         {/* Central SVG Hanger Swoop & Nail */}
-        {/* Set to z-0 so it drops behind the paper */}
         <div className="absolute -top-4.5 left-1/2 -translate-x-1/2 w-25 h-10 z-0">
           <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
             <path
@@ -86,15 +91,13 @@ export default function WallCalendar() {
           </svg>
         </div>
 
-        {/* 3. The Double-Loop Spirals and Paper Holes */}
-        {/* Removed z-20 from this wrapper as well so the rings can interleave */}
+        {/* The Double-Loop Spirals and Paper Holes */}
         <div className="w-full flex justify-between px-4 sm:px-10 mt-3">
           {/* Left Group of Spirals */}
           <div className="flex gap-1.5 sm:gap-2.5">
             {[...Array(12)].map((_, i) => (
               <div
                 key={`l-${i}`}
-                // If the index is 8 or higher, hide it on mobile, but show it on 'sm' screens and up
                 className={`relative w-3.5 h-7 flex-col items-center ${
                   i >= 8 ? "hidden sm:flex" : "flex"
                 }`}
@@ -111,7 +114,6 @@ export default function WallCalendar() {
             {[...Array(12)].map((_, i) => (
               <div
                 key={`r-${i}`}
-                // If the index is 8 or higher, hide it on mobile, but show it on 'sm' screens and up
                 className={`relative w-3.5 h-7 flex-col items-center ${
                   i >= 8 ? "hidden sm:flex" : "flex"
                 }`}
@@ -145,6 +147,9 @@ export default function WallCalendar() {
               selectedDate={selectedDate}
               onSelectDate={handleSelectDate}
               notes={notes}
+              // NEW: Passing down the state and the setter
+              weekStartsOn={weekStartsOn}
+              onWeekStartsOnChange={setWeekStartsOn}
             />
           </div>
         </div>
